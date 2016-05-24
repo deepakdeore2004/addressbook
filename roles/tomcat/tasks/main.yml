@@ -1,0 +1,80 @@
+---
+- name: Download jdk
+  become: yes
+  become_method: sudo
+  get_url: url=http://download.oracle.com/otn-pub/java/jdk/7u79-b15/jdk-7u79-linux-x64.tar.gz dest=/opt/ headers='Cookie:oraclelicense=accept-securebackup-cookie'
+
+- name: Extract jdk
+  become: yes
+  become_method: sudo
+  unarchive: src=/opt/jdk-7u79-linux-x64.tar.gz dest=/opt/ copy=no
+
+- name: Install jdk
+  become: yes
+  become_method: sudo
+  command: "{{ item }}"
+  with_items:
+    - update-alternatives --install /usr/bin/java java /opt/jdk1.7.0_79/bin/java 1
+    - update-alternatives --install /usr/bin/javac javac /opt/jdk1.7.0_79/bin/javac 1
+    - update-alternatives --set java /opt/jdk1.7.0_79/bin/java
+    - update-alternatives --set javac /opt/jdk1.7.0_79/bin/javac
+
+- name: Download tomcat
+  become: yes
+  become_method: sudo
+  get_url: url=http://apache.mirrors.lucidnetworks.net/tomcat/tomcat-7/v7.0.69/bin/apache-tomcat-7.0.69.tar.gz dest=/opt/
+
+- name: Extract tomcat
+  become: yes
+  become_method: sudo
+  unarchive: src=/opt/apache-tomcat-7.0.69.tar.gz dest=/opt/ copy=no
+
+- name: Change tomcat listen port
+  become: yes
+  become_method: sudo
+  replace: dest=/opt/apache-tomcat-7.0.69/conf/server.xml regexp='Connector port=\"8080\"' replace='Connector port=\"9000\"' backup=yes
+
+- name: Download xerces libraries
+  become: yes
+  become_method: sudo
+  get_url: url=http://mirrors.sonic.net/apache/xerces/j/binaries/Xerces-J-bin.2.11.0.tar.gz dest=/tmp/
+
+- name: Extract xerces
+  become: yes
+  become_method: sudo
+  unarchive: src=/tmp/Xerces-J-bin.2.11.0.tar.gz dest=/tmp/ copy=no
+
+- name: Copy xerces libs required for AddressBook app
+  become: yes
+  become_method: sudo
+  command: "{{ item }}"
+  with_items:
+    - cp /tmp/xerces-2_11_0/xercesImpl.jar /opt/apache-tomcat-7.0.69/lib/
+    - cp /tmp/xerces-2_11_0/xml-apis.jar /opt/apache-tomcat-7.0.69/lib/
+
+- name: Change tomcat owner to non-root user
+  become: yes
+  become_method: sudo
+  file: path=/opt/apache-tomcat-7.0.69 owner=ubuntu recurse=yes
+
+- name: Tomcat cleanup
+  become: yes
+  become_method: sudo
+  become_user: ubuntu
+  shell: "{{ item }}"
+  with_items:
+    - rm -rf /opt/apache-tomcat-7.0.69/webapps/docs
+    - rm -rf /opt/apache-tomcat-7.0.69/webapps/examples
+    - rm -rf /opt/apache-tomcat-7.0.69/webapps/host-manager
+    - rm -rf /opt/apache-tomcat-7.0.69/webapps/manager
+    - rm -rf /opt/apache-tomcat-7.0.69/webapps/ROOT
+    - mkdir /opt/apache-tomcat-7.0.69/webapps/ROOT/
+    - echo "Hello World" > /opt/apache-tomcat-7.0.69/webapps/ROOT/index.jsp
+
+- name: Start tomcat
+  become: yes
+  become_user: ubuntu
+  become_method: sudo
+  command: "nohup /opt/apache-tomcat-7.0.69/bin/startup.sh"
+
+

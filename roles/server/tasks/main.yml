@@ -1,0 +1,30 @@
+---
+- name: Update apt cache
+  apt: update_cache=yes cache_valid_time=3600
+  become: yes
+  become_method: sudo
+
+- name: Install required softwares
+  apt: name={{ item }} state=present
+  become: yes
+  become_method: sudo
+  with_items:
+    - nginx
+    - unzip
+
+- name: Nginx disable default config
+  become: yes
+  become_method: sudo
+  file: path=/etc/nginx/sites-enabled/default state=absent
+
+- name: Copy reverse proxy config
+  become: yes
+  become_method: sudo
+  copy: src=reverse_proxy dest=/etc/nginx/sites-available/
+
+- name: link proxy config to site-enabled
+  become: yes
+  become_method: sudo
+  file: path=/etc/nginx/sites-enabled/reverse_proxy src=/etc/nginx/sites-available/reverse_proxy state=link
+  notify:
+    - restart nginx

@@ -1,0 +1,25 @@
+---
+- name: Update apt cache
+  apt: update_cache=yes cache_valid_time=3600
+  become: yes
+  become_method: sudo
+
+- name: Install required softwares
+  apt: name={{ item }} state=present
+  become: yes
+  become_method: sudo
+  with_items:
+    - mysql-server
+    - python-mysqldb
+
+- name: Create mysql db
+  mysql_db: name={{ ab_mysql_db }} state=present login_user=root
+
+- name: Create mysql user
+  mysql_user:
+    login_user=root
+    name={{ ab_mysql_user }}
+    password={{ ab_mysql_password }}
+    login_host={{ ab_mysql_host }}
+    priv={{ab_mysql_db}}.*:ALL
+

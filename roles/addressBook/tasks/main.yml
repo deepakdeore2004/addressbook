@@ -1,0 +1,39 @@
+---
+- name: Download addressBook
+  become: yes
+  become_method: sudo
+  get_url: url=http://www.cumulogic.com/download/Apps/Granny-Addressbook.zip dest=/tmp/
+
+- name: Extract addressBook
+  become: yes
+  become_method: sudo
+  unarchive: src=/tmp/Granny-Addressbook.zip dest=/tmp/ copy=no
+
+- name: Deploy AddressBook
+  become: yes
+  become_method: sudo
+  command: cp /tmp/Granny-Addressbook/granny.war /opt/apache-tomcat-7.0.69/webapps/
+
+- name: wait for some time to get war file extracted
+  become: yes
+  become_method: sudo
+  become_user: ubuntu 
+  command: sleep 10 
+
+- name: Set JNDI
+  become: yes
+  become_method: sudo
+  become_user: ubuntu 
+  copy: src=context.xml dest=/opt/apache-tomcat-7.0.69/webapps/granny/META-INF
+
+- name: Restart tomcat
+  become: yes
+  become_method: sudo
+  become_user: ubuntu 
+  command: "{{ item }}" 
+  with_items:
+    - /opt/apache-tomcat-7.0.69/bin/shutdown.sh
+    - sleep 10
+    - nohup /opt/apache-tomcat-7.0.69/bin/startup.sh
+
+  

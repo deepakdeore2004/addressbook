@@ -1,0 +1,5 @@
+---
+ab_mysql_db: grannydb
+ab_mysql_user: demo
+ab_mysql_password: demodemo
+ab_mysql_host: localhost

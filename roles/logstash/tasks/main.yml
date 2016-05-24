@@ -1,0 +1,28 @@
+---
+- name: Add logstash apt source
+  become: yes
+  become_method: sudo
+  shell: "{{ item }}"
+  with_items:
+    - echo 'deb http://packages.elastic.co/logstash/2.2/debian stable main' > /etc/apt/sources.list.d/logstash-2.2.x.list
+    - apt-key adv --recv-key --keyserver keyserver.ubuntu.com D27D666CD88E42B4
+
+- name: Update apt cache
+  apt: update_cache=yes 
+  become: yes
+  become_method: sudo
+
+- name: Install Logstash
+  apt: name={{ item }} state=present
+  become: yes
+  become_method: sudo
+  with_items:
+    - logstash
+
+- name: Copy logstash config and restart it
+  become: yes
+  become_method: sudo
+  template: src=tomcat.conf dest=/etc/logstash/conf.d/tomcat.conf
+  notify:
+    - restart logstash
+

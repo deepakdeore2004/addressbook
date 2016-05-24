@@ -1,0 +1,13 @@
+---
+- hosts: db
+  roles:
+     - mysql
+     - test
+
+- hosts: web
+  roles:
+    - server
+    - tomcat
+    - addressBook
+#    - logstash
+
