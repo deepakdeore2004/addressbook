@@ -33,6 +33,4 @@ Un-comment logstash role in playbook.yml and run
 
     ansible-playbook ec2_create.yml
     
-## Setup on Vagrant
-
     
