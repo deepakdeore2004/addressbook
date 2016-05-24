@@ -4,6 +4,11 @@
   become: yes
   become_method: sudo
 
+- name: Apply latest patches
+  become: yes
+  become_method: sudo
+  apt: upgrade=full
+
 - name: Install required softwares
   apt: name={{ item }} state=present
   become: yes
