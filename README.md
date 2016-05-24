@@ -29,8 +29,9 @@ Use below pattern in tomcat/conf/server.xml valve settings and restart it.
     /opt/apache-tomcat-7.0.69/bin/shutdown.sh
     /opt/apache-tomcat-7.0.69/bin/startup.sh
 
-Un-comment logstash role in playbook.yml and run
+Add elasticsearch in logstash/defaults/main.yml.
+
+Un-comment logstash role in playbook.yml and run.
 
     ansible-playbook ec2_create.yml
-    
     
